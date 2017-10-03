@@ -40,7 +40,7 @@ class PusherController extends Controller
 
     protected function setChannels()
     {
-        $this->channels[config('farzin-pusher') . '.{userId}'] = function ($user, $userId) {
+        $this->channels[config('farzin-pusher.channel-name') . '.{userId}'] = function ($user, $userId) {
             if ($user->id == $userId) {
                 return true;
             }
