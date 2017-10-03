@@ -1,4 +1,5 @@
 <?php
 return [
-  'chanel-name' => 'test-channel'
+  'channel-name' => 'test-channel',
+  'type' => 'public' //or private
 ];
