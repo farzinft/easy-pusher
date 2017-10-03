@@ -8,10 +8,15 @@
         }
     ],
     "autoload": {
+      "files": [
+          "src/channels.php"
+      ],
       "psr-4": {
           "App\\": "app/",
           "Farzin\\Pusher\\": "src/"
       }
     },
-    "require": {}
+    "require": {
+        "vinkla/pusher": "2.1.0"
+    }
 }
