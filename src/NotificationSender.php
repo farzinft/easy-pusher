@@ -17,7 +17,13 @@ class NotificationSender
 
     public function __construct()
     {
-        $this->channel = 'private-' . config('farzin-pusher.channel-name');
+
+        if(config('farzin-pusher.type') == 'private') {
+            $this->channel = 'private-' . config('farzin-pusher.channel-name');
+        }else {
+            $this->channel = config('farzin-pusher.channel-name');
+        }
+
     }
 
     public function to($user)
@@ -60,23 +66,27 @@ class NotificationSender
 
     public function send()
     {
+        try {
+            $this->generateChannels();
 
-        $this->generateChannels();
+            if (!empty($this->channels)) {
+                $response = app('pusher')->trigger(
+                    $this->channels, $this->eventName, json_encode($this->data), null, true
+                );
 
-        if (!empty($this->channels)) {
-            $response = app('pusher')->trigger(
-                $this->channels, $this->eventName, json_encode($this->data), null, true
-            );
+                if ((is_array($response) && $response['status'] >= 200 && $response['status'] <= 299)
+                    || $response === true
+                ) {
+                    return;
+                }
 
-            if ((is_array($response) && $response['status'] >= 200 && $response['status'] <= 299)
-                || $response === true
-            ) {
-                return;
+                throw new Exception(
+                    is_bool($response) ? 'Failed to connect to Pusher.' : $response['body']
+                );
             }
 
-            throw new \Exception(
-                is_bool($response) ? 'Failed to connect to Pusher.' : $response['body']
-            );
+        }catch (Exception $e) {
+
         }
 
 
@@ -99,7 +109,7 @@ class NotificationSender
                     $this->channels[] = $this->getUserChannel($user);
                 });
             } else {
-                throw new Exception('Users Must Be A Collection');
+                throw new Exception('Users Must Be a Collection');
             }
         } else {
             $this->channels[] = $this->channel;
