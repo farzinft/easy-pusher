@@ -2,9 +2,9 @@
 
 namespace Farzin\Pusher;
 
+use function config;
 use Exception;
 use Illuminate\Support\Collection;
-use Vinkla\Pusher\Facades\Pusher;
 
 class NotificationSender
 {
@@ -13,11 +13,11 @@ class NotificationSender
     protected $eventName;
     protected $channels = [];
     protected $data = [];
-    protected $privateChannel;
+    protected $channel;
 
     public function __construct()
     {
-        $this->privateChannel = 'private-' . config('farzin-pusher.channel-name');
+        $this->channel = 'private-' . config('farzin-pusher.channel-name');
     }
 
     public function to($user)
@@ -25,6 +25,7 @@ class NotificationSender
         $this->user = $user;
         return $this;
     }
+
 
     public function withEvent($eventName)
     {
@@ -63,7 +64,7 @@ class NotificationSender
         $this->generateChannels();
 
         if (!empty($this->channels)) {
-            $response = Pusher::trigger(
+            $response = app('pusher')->trigger(
                 $this->channels, $this->eventName, json_encode($this->data), null, true
             );
 
@@ -83,21 +84,26 @@ class NotificationSender
 
     protected function getUserChannel($user)
     {
-        return $this->privateChannel . '.' . $user->id;
+        return $this->channel . '.' . $user->id;
     }
 
     protected function generateChannels()
     {
-        if (isset($this->user)) {
-            $this->channels[] = $this->getUserChannel($this->user);
+        if (config('farzin-pusher.type') == 'private') {
+            if (isset($this->user)) {
+                $this->channels[] = $this->getUserChannel($this->user);
+            }
+
+            if (isset($this->users) && $this->users instanceof Collection) {
+                $this->users->each(function ($user) {
+                    $this->channels[] = $this->getUserChannel($user);
+                });
+            } else {
+                throw new Exception('Users Must Be A Collection');
+            }
+        } else {
+            $this->channels[] = $this->channel;
         }
 
-        if (isset($this->users) && $this->users instanceof Collection) {
-            $this->users->each(function ($user) {
-                $this->channels[] = $this->getUserChannel($user);
-            });
-        } else {
-            throw new Exception('Users Must Be A Collection');
-        }
     }
 }

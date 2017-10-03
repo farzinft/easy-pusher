@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use LaravelPusher;
+
 
 class PusherController extends Controller
 {
@@ -79,7 +79,7 @@ class PusherController extends Controller
     {
         if (Str::startsWith($request->channel_name, 'private')) {
             return $this->decodePusherResponse(
-                LaravelPusher::socket_auth($request->channel_name, $request->socket_id)
+                app('pusher')->socket_auth($request->channel_name, $request->socket_id)
             );
         }
     }

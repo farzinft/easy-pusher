@@ -2,8 +2,8 @@
 
 namespace Farzin\Pusher;
 
-
 use Illuminate\Support\ServiceProvider;
+use Vinkla\Pusher\PusherServiceProvider;
 
 class FarzinPusherServiceProvider extends ServiceProvider
 {
@@ -20,6 +20,8 @@ class FarzinPusherServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->make(PusherController::class);
+
+        $this->app->make(PusherServiceProvider::class);
 
         $this->app->singleton(NotificationSender::class, function ($app) {
             return new NotificationSender();
