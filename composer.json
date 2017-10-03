@@ -1,0 +1,17 @@
+{
+    "name": "farzin/laravel-push-notification",
+    "description": "a package for sending laravel live push notification with pusher",
+    "authors": [
+        {
+            "name": "Farzin Fthi",
+            "email": "farzin.ft@hotmail.com"
+        }
+    ],
+    "autoload": {
+      "psr-4": {
+          "App\\": "app/",
+          "Farzin\\Pusher\\": "src/"
+      }
+    },
+    "require": {}
+}
