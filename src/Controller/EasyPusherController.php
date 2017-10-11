@@ -1,6 +1,6 @@
 <?php
 
-namespace EasyPusher\Controller;
+namespace Farzin\EasyPusher\Controller;
 
 use App\Http\Controllers\Controller;
 use function collect;

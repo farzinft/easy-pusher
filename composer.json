@@ -10,7 +10,7 @@
     "autoload": {
       "psr-4": {
           "App\\": "app/",
-          "EasyPusher\\": "src/"
+          "Farzin\\EasyPusher\\": "src/"
       }
     },
     "require": {

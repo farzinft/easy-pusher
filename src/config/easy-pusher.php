@@ -3,11 +3,11 @@
 return [
   'channels' => [
       [
-          'channel-name' => 'pm24-private-channel',
+          'channel-name' => 'sample-channel',
           'type' => 'private' //or private
       ],
       [
-          'channel-name' => 'pm24-public-channel',
+          'channel-name' => 'sample-public-channel',
           'type' => 'public'
       ],
   ]

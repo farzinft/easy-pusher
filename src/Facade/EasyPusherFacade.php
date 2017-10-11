@@ -1,5 +1,5 @@
 <?php
-namespace EasyPusher\Facade;
+namespace Farzin\EasyPusher\Facade;
 
 use EasyPusher\EasyPusher;
 use Illuminate\Support\Facades\Facade;

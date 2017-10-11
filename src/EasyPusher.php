@@ -1,47 +1,54 @@
 <?php
 
-namespace EasyPusher;
+namespace Farzin\EasyPusher;
 
 use function config;
+use function count;
 use Exception;
 use Illuminate\Support\Collection;
+use function preg_match;
 
 class EasyPusher
 {
     protected $users;
     protected $user;
     protected $eventName;
-    protected $channels = [];
+    protected $formattedChannels = [];
     protected $data = [];
-    protected $channel;
+    protected $channels;
 
     public function __construct()
     {
-
-        if (config('easy-pusher.type') == 'private') {
-            $this->channel = 'private-' . config('easy-pusher.channel-name');
-        } else {
-            $this->channel = config('easy-pusher.channel-name');
-        }
-
+        $this->loadChannels();
     }
 
-    public function to($user)
+    protected function loadChannels()
+    {
+        $channels = config('easy-pusher.channels');
+        foreach ($channels as $channel) {
+            if ($channel['type'] == 'private') {
+                $this->channels[] = 'private-' . $channel['channel-name'];
+            } else {
+                $this->channels[] = $channel['channel-name'];
+            }
+        }
+    }
+
+    public function toUser($user)
     {
         $this->user = $user;
-        return $this;
-    }
-
-
-    public function withEvent($eventName)
-    {
-        $this->eventName = $eventName;
         return $this;
     }
 
     public function toUsers(Collection $users)
     {
         $this->users = $users;
+        return $this;
+    }
+
+    public function withEvent($eventName)
+    {
+        $this->eventName = $eventName;
         return $this;
     }
 
@@ -69,9 +76,9 @@ class EasyPusher
         try {
             $this->generateChannels();
 
-            if (!empty($this->channels)) {
+            if (count($this->formattedChannels)) {
                 $response = app('pusher')->trigger(
-                    $this->channels, $this->eventName, json_encode($this->data), null, true
+                    $this->formattedChannels, $this->eventName, json_encode($this->data), null, true
                 );
 
                 if ((is_array($response) && $response['status'] >= 200 && $response['status'] <= 299)
@@ -89,31 +96,30 @@ class EasyPusher
 
         }
 
-
     }
 
-    protected function getUserChannel($user)
+    protected function getUserChannel($channel, $user)
     {
-        return $this->channel . '.' . $user->id;
+        return $channel . '.' . $user->id;
     }
 
     protected function generateChannels()
     {
-        if (config('easy-pusher.type') == 'private') {
-            if (isset($this->user)) {
-                $this->channels[] = $this->getUserChannel($this->user);
-            }
-
-            if (isset($this->users) && $this->users instanceof Collection) {
-                $this->users->each(function ($user) {
-                    $this->channels[] = $this->getUserChannel($user);
-                });
+        foreach ($this->channels as $channel) {
+            if (preg_match('/^(private-)/', $channel)) {
+                if (isset($this->user)) {
+                    $this->formattedChannels[] = $this->getUserChannel($channel, $this->user);
+                }
+                if (isset($this->users) && $this->users instanceof Collection) {
+                    $this->users->each(function ($user) use ($channel) {
+                        $this->formattedChannels[] = $this->getUserChannel($channel, $user);
+                    });
+                } else {
+                    throw new Exception('Users Must Be A Collection');
+                }
             } else {
-                throw new Exception('Users Must Be a Collection');
+                $this->formattedChannels[] = $channel;
             }
-        } else {
-            $this->channels[] = $this->channel;
         }
-
     }
 }
