@@ -1,12 +1,12 @@
 <?php
 
-namespace Farzin\Pusher;
+namespace EasyPusher;
 
 use function config;
 use Exception;
 use Illuminate\Support\Collection;
 
-class NotificationSender
+class EasyPusher
 {
     protected $users;
     protected $user;
@@ -18,10 +18,10 @@ class NotificationSender
     public function __construct()
     {
 
-        if(config('farzin-pusher.type') == 'private') {
-            $this->channel = 'private-' . config('farzin-pusher.channel-name');
-        }else {
-            $this->channel = config('farzin-pusher.channel-name');
+        if (config('easy-pusher.type') == 'private') {
+            $this->channel = 'private-' . config('easy-pusher.channel-name');
+        } else {
+            $this->channel = config('easy-pusher.channel-name');
         }
 
     }
@@ -85,7 +85,7 @@ class NotificationSender
                 );
             }
 
-        }catch (Exception $e) {
+        } catch (Exception $e) {
 
         }
 
@@ -99,7 +99,7 @@ class NotificationSender
 
     protected function generateChannels()
     {
-        if (config('farzin-pusher.type') == 'private') {
+        if (config('easy-pusher.type') == 'private') {
             if (isset($this->user)) {
                 $this->channels[] = $this->getUserChannel($this->user);
             }

@@ -1,15 +1,12 @@
 <?php
-
-
-namespace Farzin\Pusher;
+namespace EasyPusher\Controller;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-
-class PusherController extends Controller
+class EasyPusherController extends Controller
 {
     protected $channels;
 
