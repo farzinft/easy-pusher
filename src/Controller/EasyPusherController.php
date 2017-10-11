@@ -1,7 +1,9 @@
 <?php
+
 namespace EasyPusher\Controller;
 
 use App\Http\Controllers\Controller;
+use function collect;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -22,7 +24,7 @@ class EasyPusherController extends Controller
     public function auth(Request $request)
     {
         if (Str::startsWith($request->channel_name, ['private-', 'presence-']) &&
-            ! $request->user()) {
+            !$request->user()) {
             throw new HttpException(403);
         }
 
@@ -37,22 +39,28 @@ class EasyPusherController extends Controller
 
     protected function setChannels()
     {
-        $this->channels[config('farzin-pusher.channel-name') . '.{userId}'] = function ($user, $userId) {
-            if ($user->id == $userId) {
-                return true;
-            }
-            return false;
-        };
+        $privateChannels = collect(config('easy-pusher.channels'))
+            ->where('type', 'private')->all();
+
+        foreach ($privateChannels as $privateChannel) {
+            $this->channels[$privateChannel['channel-name'] . '.{userId}'] = function ($user, $userId) {
+                if ($user->id == $userId) {
+                    return true;
+                }
+                return false;
+            };
+        }
+
     }
 
     protected function verifyUserCanAccessChannel($request, $channel)
     {
 
         foreach ($this->channels as $pattern => $callback) {
-            if (! Str::is(preg_replace('/\{(.*?)\}/', '*', $pattern), $channel)) {
+
+            if (!Str::is(preg_replace('/\{(.*?)\}/', '*', $pattern), $channel)) {
                 continue;
             }
-
             $parameters = $this->extractChannelKeys($pattern, $channel);
 
             if ($result = $callback($request->user(), $parameters['userId'])) {
@@ -66,7 +74,7 @@ class EasyPusherController extends Controller
 
     private function extractChannelKeys($pattern, $channel)
     {
-        preg_match('/^'.preg_replace('/\{(.*?)\}/', '(?<$1>[^\.]+)', $pattern).'/', $channel, $keys);
+        preg_match('/^' . preg_replace('/\{(.*?)\}/', '(?<$1>[^\.]+)', $pattern) . '/', $channel, $keys);
 
         return $keys;
     }
