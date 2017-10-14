@@ -14,7 +14,7 @@ you can send notify to specific or collection of users,
     'EasyPusher' => Farzin\EasyPusher\EasyPusherFacade::class
 
 
-### UI JS Guide:
+###JS Guide:
 first you need add pusher.js to your html file 
 `<script src="https://js.pusher.com/4.1/pusher.min.js"></script>`
 ```
@@ -33,9 +33,9 @@ window.userId = '{{ auth()->check() ? auth()->user()->id : null}}';
         encrypted: true
     });
     
-    //for a private channels subscribe events with 'private' prefix
+    //for private channels subscribe events with 'private' prefix
        pusherPrivate
-        .subscribe('sample-channel.' + window.userId)
+        .subscribe('private-sample-channel.' + window.userId)
         .bind('sample-event', function (data) {
             alert();
         })
@@ -73,7 +73,7 @@ then in easy-pusher.php config file your need to define your channels:
  for broadcasting events
 
 ```
-use EasyPusher
+use EasyPusher;
 
 //all users
 EasyPusher::withEvent('sample-event')->withData(array $data)->send();
@@ -81,7 +81,7 @@ EasyPusher::withEvent('sample-event')->withData(array $data)->send();
 //collection of users
 EasyPusher::withEvent('sample-event')->toUsers(Collection $users)->withData(array $data)->send();
 
-//user Model
+//specific user | user Model
 EasyPusher::withEvent('sample-event')->toUser($user)->withData(array $data)->send();
 ```
 you can pass event name as string or qualified class name.
