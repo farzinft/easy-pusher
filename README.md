@@ -14,7 +14,7 @@ you can send notify to specific or collection of users,
     'EasyPusher' => Farzin\EasyPusher\EasyPusherFacade::class
 
 
-###JS Guide:
+### JS Guide:
 first you need add pusher.js to your html file 
 `<script src="https://js.pusher.com/4.1/pusher.min.js"></script>`
 ```
