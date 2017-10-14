@@ -1,5 +1,14 @@
 <?php
+//Add Your Channels
 return [
-  'channel-name' => 'test-channel',
-  'type' => 'public' //or private
+  'channels' => [
+      [
+          'channel-name' => 'sample-channel',
+          'type' => 'private' //or private
+      ],
+      [
+          'channel-name' => 'sample-public-channel',
+          'type' => 'public'
+      ],
+  ]
 ];

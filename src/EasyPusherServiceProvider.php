@@ -1,8 +1,8 @@
 <?php
 
-namespace EasyPusher;
+namespace Farzin\EasyPusher;
 
-use EasyPusher\Controller\EasyPusherController;
+use Farzin\EasyPusher\Controller\EasyPusherController;
 use Illuminate\Support\ServiceProvider;
 
 
