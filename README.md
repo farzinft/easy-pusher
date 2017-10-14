@@ -14,15 +14,15 @@ you can send notify to specific or collection of users,
     'EasyPusher' => Farzin\EasyPusher\EasyPusherFacade::class
 
 
-###JS Guide:
+### JS Guide:
 first you need add pusher.js to your html file 
 `<script src="https://js.pusher.com/4.1/pusher.min.js"></script>`
 ```
 //For Private Channels: 
 
-window.userId = '{{ auth()->check() ? auth()->user()->id : null}}';
+ window.userId = '{{ auth()->check() ? auth()->user()->id : null}}';
     Pusher.logToConsole = true;
-    var pusherPrivate = new Pusher('YOUR PUSHER APP KEY'
+    var pusherPrivate = new Pusher('YOUR PUSHER KEY', {
         authEndpoint: '/easy-pusher/auth',
         auth: {
             headers: {
@@ -32,21 +32,23 @@ window.userId = '{{ auth()->check() ? auth()->user()->id : null}}';
         cluster: 'us2',
         encrypted: true
     });
-    
-    //for private channels subscribe events with 'private' prefix
-       pusherPrivate
-        .subscribe('private-sample-channel.' + window.userId)
-        .bind('sample-event', function (data) {
-            alert();
-        })
-        
-//for public channels
-var pusher =  new Pusher('YOUR PUSHER APP KEY');
-  pusher
-        .subscribe('sample-public-channel'
-        .bind('sample-event', function (data) {
-            alert();
-        })
+    var pusherPublic = new Pusher('YOUR PUSHER KEY', {
+        cluster: 'us2',
+        encrypted: true
+    });
+    var channels = {!! json_encode(config('easy-pusher.channels')) !!};
+    for(var i = 0; i < channels.length; i++) {
+        var channel = channels[i];
+        if (channel.match(/^(private).*/)) {
+            pusherPrivate.subscribe(channel + '.' + window.userId);
+        } else {
+            pusherPublic.subscribe(channel);
+        }
+	}
+    pusherPublic.bind('sample-event', function () {
+		alert();
+    })
+
 ```
 
 
@@ -54,20 +56,14 @@ var pusher =  new Pusher('YOUR PUSHER APP KEY');
 ### Back End Guide:
 first you need publish config file:
 `php artisan vendor:publish`
-then in easy-pusher.php config file your need to define your channels:
+then in easy-pusher.php config file your need to define your channels, for private channels prefix with 'private';
 ```
-  'channels' => [
-      [
-          'channel-name' => 'sample-channel',
-          'type' => 'private' //or private
-      ],
-      [
-          'channel-name' => 'sample-public-channel',
-          'type' => 'public'
-      ],
-      .
-      .
-  ]
+return [
+    'channels' => [
+        'private-sample-channel', //prefix with public or private
+        'public-sample-channel'
+    ]
+];
 ```
 
  for broadcasting events
@@ -75,8 +71,11 @@ then in easy-pusher.php config file your need to define your channels:
 ```
 use EasyPusher;
 
-//all users
+//broadcast event to public channels
 EasyPusher::withEvent('sample-event')->withData(array $data)->send();
+
+
+//for private channels
 
 //collection of users
 EasyPusher::withEvent('sample-event')->toUsers(Collection $users)->withData(array $data)->send();

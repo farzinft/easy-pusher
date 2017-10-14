@@ -1,7 +1,7 @@
 <?php
 namespace Farzin\EasyPusher\Facade;
 
-use EasyPusher\EasyPusher;
+use Farzin\EasyPusher\EasyPusher;
 use Illuminate\Support\Facades\Facade;
 
 class EasyPusherFacade extends Facade

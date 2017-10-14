@@ -24,14 +24,8 @@ class EasyPusher
 
     protected function loadChannels()
     {
-        $channels = config('easy-pusher.channels');
-        foreach ($channels as $channel) {
-            if ($channel['type'] == 'private') {
-                $this->channels[] = 'private-' . $channel['channel-name'];
-            } else {
-                $this->channels[] = $channel['channel-name'];
-            }
-        }
+        $this->channels = config('easy-pusher.channels');
+
     }
 
     public function toUser($user)
@@ -93,7 +87,7 @@ class EasyPusher
             }
 
         } catch (Exception $e) {
-
+            dd($e->getMessage());
         }
 
     }
@@ -106,7 +100,7 @@ class EasyPusher
     protected function generateChannels()
     {
         foreach ($this->channels as $channel) {
-            if (preg_match('/^(private-)/', $channel)) {
+            if (preg_match('/^(private).*/', $channel)) {
                 if (isset($this->user)) {
                     $this->formattedChannels[] = $this->getUserChannel($channel, $this->user);
                 }
@@ -114,8 +108,6 @@ class EasyPusher
                     $this->users->each(function ($user) use ($channel) {
                         $this->formattedChannels[] = $this->getUserChannel($channel, $user);
                     });
-                } else {
-                    throw new Exception('Users Must Be A Collection');
                 }
             } else {
                 $this->formattedChannels[] = $channel;

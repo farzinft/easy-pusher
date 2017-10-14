@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use function collect;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use function preg_match;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class EasyPusherController extends Controller
@@ -27,11 +28,7 @@ class EasyPusherController extends Controller
             !$request->user()) {
             throw new HttpException(403);
         }
-
-        $channelName = Str::startsWith($request->channel_name, 'private-')
-            ? str_replace_first('private-', '', $request->channel_name)
-            : str_replace_first('presence-', '', $request->channel_name);
-
+        $channelName = $request->channel_name;
         return $this->verifyUserCanAccessChannel(
             $request, $channelName
         );
@@ -40,10 +37,12 @@ class EasyPusherController extends Controller
     protected function setChannels()
     {
         $privateChannels = collect(config('easy-pusher.channels'))
-            ->where('type', 'private')->all();
+            ->filter(function ($channel) {
+                return preg_match('/^(private).*/', $channel) ? true : false;
+            });
 
         foreach ($privateChannels as $privateChannel) {
-            $this->channels[$privateChannel['channel-name'] . '.{userId}'] = function ($user, $userId) {
+            $this->channels[$privateChannel . '.{userId}'] = function ($user, $userId) {
                 if ($user->id == $userId) {
                     return true;
                 }

@@ -1,3 +1,3 @@
 <?php
 
-Route::post('/easy-pusher/auth', 'EasyPusher\Controller\EasyPusherController@auth');
+Route::post('/easy-pusher/auth', 'Farzin\EasyPusher\Controller\EasyPusherController@auth');
